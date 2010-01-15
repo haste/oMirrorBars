@@ -1,0 +1,8 @@
+## Interface: 30300
+## Title: oMirrorBars
+## Author: Haste
+## Version: 1.0
+## X-eMail: troeks@gmail.com
+## Notes: Replacement bars for the in-game mirror timers.
+
+mirror.lua
