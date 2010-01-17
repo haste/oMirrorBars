@@ -5,4 +5,4 @@
 ## X-eMail: troeks@gmail.com
 ## Notes: Replacement bars for the in-game mirror timers.
 
-mirror.lua
+oMirrorBars.xml
