@@ -1,6 +1,9 @@
+local _, settings = ...
+
 local _DEFAULTS = {
 	width = 220,
 	height = 18,
+	texture = [[Interface\AddOns\oMirrorBars\textures\statusbar]],
 
 	position = {
 		["BREATH"] = 'TOP#UIParent#TOP#0#-96';
@@ -16,32 +19,24 @@ local _DEFAULTS = {
 	};
 }
 
-local _DB
+do
+	settings = setmetatable(settings, {__index = _DEFAULTS})
+	for k,v in next, settings do
+		if(type(v) == 'table') then
+			settings[k] = setmetatable(settings[k], {__index = _DEFAULTS[k]})
+		end
+	end
+end
 
-local Spawn, PauseAll
+local Spawn, PauseAlla
 do
 	local barPool = {}
 
-	local savePosition = function(self)
-		local p1, frame, p2, x, y = self:GetPoint()
-
-		_DB.position[self.type] = string.join('#', p1, frame, p2, x, y)
-	end
-
 	local loadPosition = function(self)
-		local pos = _DB.position[self.type]
+		local pos = settings.position[self.type]
 		local p1, frame, p2, x, y = strsplit("#", pos)
 
 		return self:SetPoint(p1, frame, p2, x, y)
-	end
-
-	local OnDragStop = function(self)
-		self:StopMovingOrSizing()
-		self:savePosition()
-	end
-
-	local OnDragStart = function(self)
-		self:StartMoving()
 	end
 
 	local OnUpdate = function(self, elapsed)
@@ -70,19 +65,12 @@ do
 		local frame = CreateFrame('StatusBar', nil, UIParent)
 
 		frame:SetScript("OnUpdate", OnUpdate)
-		frame:SetScript('OnDragStart', OnDragStart)
-		frame:SetScript('OnDragStop', OnDragStop)
 
-		-- XXX: Toggle this later on:
-		--frame:EnableMouse(true)
-		frame:SetMovable(true)
-		frame:RegisterForDrag'LeftButton'
-
-		local r, g, b = unpack(_DB.colors[type])
+		local r, g, b = unpack(settings.colors[type])
 
 		local bg = frame:CreateTexture(nil, 'BACKGROUND')
 		bg:SetAllPoints(frame)
-		bg:SetTexture[[Interface\AddOns\oMirrorBars\textures\statusbar]]
+		bg:SetTexture(settings.texture)
 		bg:SetVertexColor(r * .5, g * .5, b * .5)
 
 		local text = frame:CreateFontString(nil, 'OVERLAY')
@@ -98,9 +86,9 @@ do
 		text:SetPoint('TOP', frame, 0, -3)
 		text:SetPoint('BOTTOM', frame)
 
-		frame:SetSize(_DB.width, _DB.height)
+		frame:SetSize(settings.width, settings.height)
 
-		frame:SetStatusBarTexture[[Interface\AddOns\oMirrorBars\textures\statusbar]]
+		frame:SetStatusBarTexture(settings.texture)
 		frame:SetStatusBarColor(r, g, b)
 
 		frame.type = type
@@ -130,8 +118,6 @@ end)
 function frame:ADDON_LOADED(addon)
 	if(addon == 'oMirrorBars') then
 		UIParent:UnregisterEvent'MIRROR_TIMER_START'
-
-		_DB = setmetatable((oMirrorBars or {}), {__index = _DEFAULTS})
 
 		self:UnregisterEvent'ADDON_LOADED'
 		self.ADDON_LOADED = nil
