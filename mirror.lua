@@ -28,7 +28,7 @@ do
 	end
 end
 
-local Spawn, PauseAlla
+local Spawn, PauseAll
 do
 	local barPool = {}
 
